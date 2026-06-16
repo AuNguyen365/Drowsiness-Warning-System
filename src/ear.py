@@ -25,36 +25,9 @@ def calculate_ear(eye_points: List[Tuple[int | float, int | float]]) -> float:
     Returns:
         float: Calculated Eye Aspect Ratio. Returns 0.0 if calculations are invalid.
     """
-    if len(eye_points) != 6:
-        logger.error(f"EAR calculation requires exactly 6 points. Received {len(eye_points)}.")
-        return 0.0
-        
-    try:
-        # Extract coordinates
-        p1, p2, p3, p4, p5, p6 = eye_points
-        
-        # Calculate Euclidean distances for vertical pairs
-        # ||p2 - p6||
-        dist_p2_p6 = math.dist(p2, p6)
-        # ||p3 - p5||
-        dist_p3_p5 = math.dist(p3, p5)
-        
-        # Calculate Euclidean distance for horizontal pair
-        # ||p1 - p4||
-        dist_p1_p4 = math.dist(p1, p4)
-        
-        # Guard against division by zero
-        if dist_p1_p4 == 0.0:
-            logger.warning("Horizontal distance of eye is zero. Returning EAR = 0.0 to prevent division by zero.")
-            return 0.0
-            
-        # Compute EAR
-        ear = (dist_p2_p6 + dist_p3_p5) / (2.0 * dist_p1_p4)
-        return ear
-        
-    except Exception as e:
-        logger.error(f"Error during EAR calculation: {e}")
-        return 0.0
+    # TODO: Calculate Euclidean distances between horizontal and vertical eye landmark pairs.
+    # Be sure to handle division by zero errors if horizontal distance is 0.0.
+    return 0.0
 
 
 def calculate_avg_ear(
@@ -71,6 +44,5 @@ def calculate_avg_ear(
     Returns:
         float: Average EAR of both eyes.
     """
-    ear_left = calculate_ear(left_eye)
-    ear_right = calculate_ear(right_eye)
-    return (ear_left + ear_right) / 2.0
+    # TODO: Compute individual EAR values for left and right eyes, then return the average.
+    return 0.0

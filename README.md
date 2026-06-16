@@ -21,7 +21,7 @@ Hệ thống hỗ trợ cả chế độ phân loại hình học tĩnh và **ch
 ## Cấu Trúc Thư Mục Dự Án
 
 ```
-WakeGuard/
+Drowsiness-Warning-System/ (Thư mục gốc workspace)
 ├── assets/             # Tài nguyên (ví dụ: tệp âm thanh cảnh báo)
 ├── data/               # Chứa dữ liệu thu thập (dataset.csv)
 ├── models/             # Chứa mô hình SVM đã huấn luyện (drowsiness_svm.pkl)
@@ -126,3 +126,19 @@ Tất cả các thiết lập cốt lõi nằm trong tệp [src/config.py](src/c
 ```bash
 pytest tests/
 ```
+
+---
+
+## 🔧 Quy định Commit (Git Commit Convention)
+
+Để dự án được quản lý chuyên nghiệp, tất cả thành viên hãy tuân thủ cấu trúc Commit sau:
+
+Cấu trúc: `<type>(<scope>): <description>`
+
+- `feat`: Thêm tính năng mới (Ví dụ: `feat(auth): add google login`)
+- `fix`: Sửa lỗi (Ví dụ: `fix(cart): fix price calculation error`)
+- `docs`: Cập nhật tài liệu (Ví dụ: `docs(readme): update run instructions`)
+- `style`: Thay đổi giao diện, CSS, format code (Ví dụ: `style(home): update hero section colors`)
+- `refactor`: Tái cấu trúc mã nguồn, không làm thay đổi tính năng (Ví dụ: `refactor(db): change model structure`)
+- `chore`: Các công việc phụ trợ, cài đặt môi trường (Ví dụ: `chore(git): add gitkeep files`)
+

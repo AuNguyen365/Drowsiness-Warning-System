@@ -147,6 +147,6 @@ Cấu trúc: `<type>(<scope>): <description>`
 ## 📂 Tài Liệu Dự Án
 
 Các tài liệu hướng dẫn và thiết kế chi tiết nằm trong thư mục `docs/`:
-- 📋 **[Bảng Phân Công Nhiệm Vụ (docs/Divisiontasks.md)](docs/Divisiontasks.md)**: Phân chia chi tiết nhiệm vụ và cách thức thực hiện cho 5 thành viên.
+- 📋 **[Bảng Phân Công Nhiệm Vụ (docs/divisiontasks.md)](docs/divisiontasks.md)**: Phân chia chi tiết nhiệm vụ và cách thức thực hiện cho 5 thành viên.
 - 📐 **[Tài Liệu Kiến Trúc Hệ Thống (docs/architecture.md)](docs/architecture.md)**: Mô tả thiết kế kiến trúc hệ thống, sơ đồ luồng dữ liệu và thiết kế lớp hướng đối tượng.
 

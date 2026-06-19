@@ -53,22 +53,48 @@ class WebcamSource(VideoSource):
         """
         self.camera_index = camera_index
         self.cap = None
-        # TODO: Initialize the camera capture stream
-        pass
+        self._initialize_stream()
         
     def _initialize_stream(self) -> None:
-        # TODO: Implement stream opening using cv2.VideoCapture with error handling
-        pass
+        try:
+            logger.info(f"Initializing video capture stream with index/path: {self.camera_index}...")
+            self.cap = cv2.VideoCapture(self.camera_index)
+            if not self.cap.isOpened():
+                logger.error(f"Failed to open video source: {self.camera_index}")
+                self.cap = None
+            else:
+                logger.info("Video capture stream initialized successfully.")
+        except Exception as e:
+            logger.exception(f"Error during video capture initialization: {e}")
+            self.cap = None
             
     def read(self) -> Tuple[bool, Optional[np.ndarray]]:
-        # TODO: Implement frame reading. Return (success_status, frame)
-        # Remember to handle exceptions and check if the capture stream is open
-        return False, None
+        if not self.is_opened():
+            logger.warning("Capture stream is not open. Attempting to re-initialize...")
+            self._initialize_stream()
+            if not self.is_opened():
+                logger.error("Re-initialization failed. Cannot read frame.")
+                return False, None
+                
+        try:
+            ret, frame = self.cap.read()
+            if not ret or frame is None:
+                logger.warning("Failed to retrieve frame from video source.")
+                return False, None
+            return True, frame
+        except Exception as e:
+            logger.exception(f"Error reading frame from video source: {e}")
+            return False, None
             
     def is_opened(self) -> bool:
-        # TODO: Return True if video capture stream is open, False otherwise
-        return False
+        return self.cap is not None and self.cap.isOpened()
         
     def release(self) -> None:
-        # TODO: Release the cv2.VideoCapture stream and perform cleanup
-        pass
+        if self.is_opened():
+            logger.info("Releasing video capture stream...")
+            try:
+                self.cap.release()
+                logger.info("Video capture stream released successfully.")
+            except Exception as e:
+                logger.exception(f"Error releasing video capture stream: {e}")
+        self.cap = None

@@ -13,15 +13,25 @@ class DrowsinessClassifier:
     
     def __init__(self):
         self.model = None
-        # TODO: Load the model during initialization
-        pass
+        self._load_model()
         
     def _load_model(self) -> None:
-        # TODO: Implement model loading logic
-        # 1. Check if model file config.MODEL_PATH exists. If not, log a warning and return.
-        # 2. Import and use joblib to load the model file, saving it into self.model.
-        # 3. Handle import errors or loading exceptions gracefully.
-        pass
+        if not os.path.exists(config.MODEL_PATH):
+            logger.warning("ML model not found at %s. Using EAR threshold fallback.", config.MODEL_PATH)
+            return
+
+        try:
+            import joblib
+        except ImportError:
+            logger.warning("joblib is not installed. Using EAR threshold fallback.")
+            return
+
+        try:
+            self.model = joblib.load(config.MODEL_PATH)
+            logger.info("Loaded ML model from %s", config.MODEL_PATH)
+        except Exception as e:
+            logger.exception("Failed to load ML model from %s: %s", config.MODEL_PATH, e)
+            self.model = None
             
     def predict(self, left_ear: float, right_ear: float, avg_ear: float) -> int:
         """
@@ -35,12 +45,14 @@ class DrowsinessClassifier:
         Returns:
             int: 0 for Open, 1 for Closed.
         """
-        # TODO: Implement state prediction
-        # 1. If self.model is loaded, call predict on model using feature format [[left_ear, right_ear, avg_ear]]
-        # 2. Return prediction label (0 or 1)
-        # 3. If model is not loaded (or prediction fails), fall back to manual threshold check:
-        #    Return 1 if avg_ear < config.EAR_THRESHOLD else 0
-        return 0
+        if self.model is not None:
+            try:
+                prediction = self.model.predict([[left_ear, right_ear, avg_ear]])
+                return int(prediction[0])
+            except Exception as e:
+                logger.exception("ML prediction failed, using fallback: %s", e)
+
+        return 1 if avg_ear < config.EAR_THRESHOLD else 0
         
     def is_using_ml(self) -> bool:
         """
@@ -49,5 +61,4 @@ class DrowsinessClassifier:
         Returns:
             bool: True if SVM is running, False otherwise.
         """
-        # TODO: Return True if ML model is active, False otherwise
-        return False
+        return self.model is not None

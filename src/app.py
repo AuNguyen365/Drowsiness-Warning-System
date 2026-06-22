@@ -3,6 +3,10 @@ import logging
 import sys
 import os
 import numpy as np
+import warnings
+
+# Suppress sklearn UserWarning regarding feature names during inference
+warnings.filterwarnings("ignore", message=".*does not have valid feature names.*")
 from typing import List, Tuple, Optional
 
 # Adjust path to allow importing modules from the same directory when executed directly

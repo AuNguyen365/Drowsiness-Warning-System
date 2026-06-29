@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WakeGuard AI - Hệ Thống Cảnh Báo Buồn Ngủ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- MediaPipe FaceMesh & Camera CDNs -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <!-- Full-screen alarm overlay -->
+    <div id="danger-overlay" class="danger-overlay"></div>
+
+    <div class="app-container">
+        <!-- Sidebar / Header -->
+        <header class="app-header">
+            <div class="logo-area">
+                <span class="logo-icon">👁️‍🗨️</span>
+                <div>
+                    <h1>WakeGuard AI</h1>
+                    <p class="subtitle">Driver Monitoring System</p>
+                </div>
+            </div>
+            
+            <div class="status-panel">
+                <span class="status-label">Trạng thái:</span>
+                <span id="system-status" class="status-badge status-normal">ĐANG KHỞI TẠO</span>
+                <button id="btn-toggle-monitor" class="btn btn-primary">Tắt giám sát</button>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Grid -->
+        <main class="dashboard-grid">
+            <!-- Camera & Canvas Feed -->
+            <section class="card feed-card">
+                <h2 class="card-title">Live Video Feed</h2>
+                <div class="video-container">
+                    <video id="webcam" autoplay playsinline></video>
+                    <canvas id="output-canvas"></canvas>
+                    <div id="loading-spinner" class="spinner-container">
+                        <div class="spinner"></div>
+                        <p>Đang tải mô hình Face Mesh...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Metrics Panel -->
+            <section class="card stats-card">
+                <h2 class="card-title">Chỉ số giám sát</h2>
+                
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <div class="metric-label">Mức EAR hiện tại</div>
+                        <div id="metric-ear" class="metric-value">0.000</div>
+                    </div>
+                    
+                    <div class="metric-item">
+                        <div class="metric-label">Khung hình nhắm mắt</div>
+                        <div id="metric-frames" class="metric-value">0 / 15</div>
+                    </div>
+                </div>
+
+                <div class="progress-bar-container">
+                    <div class="progress-labels">
+                        <span>Nhắm chặt</span>
+                        <span id="current-threshold-label">Ngưỡng: 0.25</span>
+                        <span>Mở to</span>
+                    </div>
+                    <div class="progress-track">
+                        <div id="ear-progress-fill" class="progress-fill"></div>
+                        <div id="threshold-marker" class="threshold-marker"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Real-time Chart -->
+            <section class="card chart-card">
+                <div class="chart-header">
+                    <h2 class="card-title">Biểu đồ biến thiên EAR</h2>
+                    <span class="chart-legend">Nhấp nháy khi nhắm mắt</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="ear-chart"></canvas>
+                </div>
+            </section>
+
+            <!-- Controls and Calibration -->
+            <section class="card controls-card">
+                <h2 class="card-title">Cấu hình & Hiệu chuẩn</h2>
+
+                <div class="calibration-section">
+                    <h3>Hiệu chuẩn thông minh (Kính mắt/Ánh sáng)</h3>
+                    <p class="help-text">Nhấn nút bên dưới để căn chỉnh ngưỡng EAR khớp với mắt của bạn.</p>
+                    
+                    <div class="button-group">
+                        <button id="btn-calibrate" class="btn btn-primary">Bắt đầu hiệu chuẩn</button>
+                        <button id="btn-reset-calibration" class="btn btn-secondary">Đặt lại mặc định</button>
+                    </div>
+
+                    <!-- Calibration steps indicator -->
+                    <div id="calibration-wizard" class="wizard-steps hidden">
+                        <p id="wizard-instruction" class="wizard-instruction">Đang chuẩn bị...</p>
+                        <div class="wizard-progress">
+                            <div id="wizard-progress-bar" class="wizard-progress-bar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>Cài đặt thông số</h3>
+                    
+                    <div class="control-row">
+                        <label for="range-threshold">Ngưỡng nhạy EAR:</label>
+                        <div class="range-container">
+                            <input type="range" id="range-threshold" min="0.05" max="0.40" step="0.01" value="0.25">
+                            <span id="val-threshold">0.25</span>
+                        </div>
+                    </div>
+
+                    <div class="control-row">
+                        <label for="range-consec">Số khung nhắm mắt cảnh báo:</label>
+                        <div class="range-container">
+                            <input type="range" id="range-consec" min="5" max="45" step="1" value="15">
+                            <span id="val-consec">15</span>
+                        </div>
+                    </div>
+
+                    <div class="control-row">
+                        <label>Âm thanh cảnh báo:</label>
+                        <div class="audio-toggles">
+                            <label class="radio-label">
+                                <input type="radio" name="sound-type" value="voice" checked> Giọng nói tiếng Việt
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="sound-type" value="beep"> Tiếng còi Beep
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="button-group" style="margin-top: 15px;">
+                        <button id="btn-test-alarm" class="btn btn-secondary">Chạy thử còi báo động</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="app-footer">
+            <p>WakeGuard AI Web Client - Giải pháp an toàn lái xe ứng dụng trí tuệ nhân tạo</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

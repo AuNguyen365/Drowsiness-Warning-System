@@ -4,10 +4,6 @@ import logging
 # General Settings
 WINDOW_TITLE = "WakeGuard - Driver Drowsiness Detection"
 
-# Development Mock Settings
-# Set to True to use dummy/stub components for detector, classifier, UI, and alarm.
-USE_MOCK_COMPONENTS = False
-
 # Detection Parameters
 # EAR (Eye Aspect Ratio) threshold: Used as fallback if no ML model is found.
 EAR_THRESHOLD = 0.25

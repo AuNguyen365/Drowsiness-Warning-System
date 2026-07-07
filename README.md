@@ -8,13 +8,20 @@ Hệ thống hỗ trợ cả chế độ phân loại hình học tĩnh và **ch
 
 ## Tính Năng
 
+- **Hỗ Trợ 2 Phiên Bản Tiện Lợi**:
+  - **Phiên bản Desktop (Python)**: Sử dụng OpenCV để vẽ HUD trực quan thời gian thực, hỗ trợ chế độ Học máy SVM cá nhân hóa, cảnh báo âm thanh không chặn luồng chính.
+  - **Phiên bản Web Client (HTML5/JS)**: Giao diện Dashboard hiện đại chạy trực tiếp trên trình duyệt sử dụng MediaPipe FaceMesh từ CDN. Hỗ trợ hiệu chuẩn (Calibration) tự động, biểu đồ biến thiên EAR và cảnh báo bằng giọng nói tiếng Việt.
 - **Phát Hiện Mốc Khuôn Mặt Thời Gian Thực**: Sử dụng thư viện MediaPipe FaceMesh để theo dõi tọa độ khuôn mặt 3D với độ chính xác cao từ webcam tiêu chuẩn.
 - **Tỷ Lệ Khung Hình Mắt (EAR)**: Tính toán mức độ mở mắt một cách xác định (deterministic) mà không cần sử dụng mô hình phân loại Deep Learning phức tạp.
-- **Hỗ Trợ Học Máy SVM (Mới)**: Huấn luyện mô hình phân loại nhắm/mở mắt cá nhân hóa bằng thuật toán SVM (Scikit-Learn) dựa trên dữ liệu số ghi nhận trực tiếp từ webcam của bạn.
-- **Giao Diện Cảnh Báo Trực Quan (HUD)**: Cửa sổ hiển thị video thời gian thực với các đường viền tùy chỉnh bao quanh mắt, chỉ số theo dõi EAR, biểu ngữ cảnh báo nhấp nháy, cột đo mức EAR và nhãn hiển thị chế độ hoạt động hiện tại (SVM hay Tĩnh).
-- **Cảnh Báo Âm Thanh Không Gây Nghẽn (Non-blocking)**: Sử dụng luồng chạy ngầm hoặc API hệ thống bất đồng bộ độc lập (`winsound` trên Windows, `playsound` trên các nền tảng khác) để phát âm thanh cảnh báo, đảm bảo không gây giật lag hoặc giảm khung hình (FPS) của luồng xử lý chính.
-- **Cấu Hình Linh Hoạt**: Các ngưỡng nhạy cảm EAR và thời gian nhắm mắt có thể dễ dàng tùy chỉnh trong một tệp cấu hình duy nhất.
-- **Kiến Trúc SOLID**: Được thiết kế hướng đối tượng, phân tách rõ ràng các thành phần chức năng theo nguyên lý Single Responsibility (Đơn nhiệm) và Dependency Inversion (Đảo ngược Phụ thuộc).
+- **Hỗ Trợ Học Máy SVM (Desktop)**: Huấn luyện mô hình phân loại nhắm/mở mắt cá nhân hóa bằng thuật toán SVM (Scikit-Learn) dựa trên dữ liệu số ghi nhận trực tiếp từ webcam của bạn.
+- **Giao Diện Cảnh Báo Trực Quan (HUD / Dashboard)**:
+  - Phiên bản Desktop tích hợp HUD hiển thị chỉ số, đường viền vẽ mắt trực tiếp trên OpenCV.
+  - Phiên bản Web sở hữu giao diện Dashboard tối giản, hiển thị biểu đồ sóng EAR thời gian thực, thanh đo mức độ mở mắt cùng lớp phủ màu đỏ nhấp nháy khi nguy hiểm.
+- **Cảnh Báo Âm Thanh Thông Minh**:
+  - Bản Desktop sử dụng luồng chạy ngầm hoặc API hệ thống bất đồng bộ (`winsound` hoặc `playsound`) để phát âm thanh báo động.
+  - Bản Web sử dụng Web Audio API (phát tiếng bíp) và Web Speech API (phát giọng nói cảnh báo tiếng Việt) trực tiếp từ trình duyệt.
+- **Căn Chỉnh Ngưỡng Linh Hoạt**: Các ngưỡng nhạy cảm EAR và thời gian nhắm mắt có thể tùy chỉnh dễ dàng qua file cấu hình `src/config.py` (bản Desktop) hoặc qua thanh trượt & chức năng tự động hiệu chuẩn (bản Web).
+- **Kiến Trúc Hướng Đối Tượng**: Được thiết kế hướng đối tượng, phân tách rõ ràng các thành phần chức năng theo nguyên lý SOLID.
 
 ---
 
@@ -26,7 +33,7 @@ Drowsiness-Warning-System/ (Thư mục gốc workspace)
 ├── data/               # Chứa dữ liệu thu thập (dataset.csv)
 ├── models/             # Chứa mô hình SVM đã huấn luyện (drowsiness_svm.pkl)
 ├── docs/               # Tài liệu hệ thống và hướng dẫn chi tiết
-├── src/                # Mã nguồn hệ thống
+├── src/                # Mã nguồn hệ thống (Phiên bản Desktop)
 │   ├── alert.py        # Mô-đun cảnh báo âm thanh bất đồng bộ
 │   ├── app.py          # Vòng lặp chính điều phối hoạt động hệ thống
 │   ├── camera.py       # Lớp trừu tượng hóa việc thu nhận hình ảnh từ camera
@@ -37,6 +44,10 @@ Drowsiness-Warning-System/ (Thư mục gốc workspace)
 │   ├── ear.py          # Tính toán toán học cho Tỷ lệ Khung hình Mắt (EAR)
 │   ├── train.py        # Tập lệnh huấn luyện mô hình SVM từ dữ liệu đã thu thập
 │   └── ui.py           # Giao diện HUD vẽ đè thông tin hiển thị (OpenCV)
+├── web/                # Giao diện Web Client chạy trực tiếp trên trình duyệt
+│   ├── index.html      # Trang giao diện chính WakeGuard AI Web Client
+│   ├── app.js          # Logic tính toán EAR, Face Mesh và điều khiển cảnh báo âm thanh
+│   └── style.css       # Định dạng giao diện hiện đại (chế độ tối, biểu đồ, nút điều khiển)
 ├── tests/              # Thư mục kiểm thử (Pytest)
 │   └── test_ear.py     # Các bài kiểm thử isolated cho thuật toán EAR
 └── requirements.txt    # Danh sách các thư viện phụ thuộc của dự án
@@ -101,7 +112,46 @@ python src/app.py
 
 ---
 
-## Các Phím Điều Khiển Trực Tiếp:
+## Hướng Dẫn Chạy Giao Diện Web (Web Client)
+
+WakeGuard AI cung cấp một phiên bản Web Client gọn nhẹ chạy trực tiếp trên trình duyệt, không yêu cầu cài đặt Python hay các thư viện máy học phức tạp. Bản Web chạy trực tiếp mô hình **MediaPipe FaceMesh** từ CDN và tự động tính toán chỉ số EAR cùng các cảnh báo âm thanh ngay trong trình duyệt của bạn.
+
+### Cách chạy nhanh giao diện Web:
+
+Để bảo mật quyền truy cập webcam (Secure Context), các trình duyệt hiện đại yêu cầu trang web phải chạy qua giao thức HTTPS hoặc qua localhost (`http://localhost` hoặc `http://127.0.0.1`). Việc nhấp đúp trực tiếp vào file `web/index.html` để mở có thể khiến camera bị từ chối truy cập. Bạn nên khởi chạy bằng một trong các máy chủ local server sau:
+
+#### Cách 1: Sử dụng Python (Đơn giản nhất vì bạn đã cài Python)
+Mở terminal tại thư mục gốc của dự án và chạy lệnh:
+```bash
+python -m http.server 8000 --directory web
+```
+Sau đó, mở trình duyệt của bạn và truy cập địa chỉ:
+👉 **[http://localhost:8000](http://localhost:8000)**
+
+#### Cách 2: Sử dụng tiện ích mở rộng Live Server (trong VS Code)
+1. Mở thư mục dự án bằng VS Code.
+2. Click chuột phải vào tệp [web/index.html](file:///d:/Project/Drowsiness-Warning-System/web/index.html) và chọn **Open with Live Server**.
+
+#### Cách 3: Sử dụng Node.js (Nếu có cài đặt sẵn Node.js)
+```bash
+# Cài đặt server toàn cục
+npm install -g http-server
+
+# Khởi chạy server trỏ đến thư mục web
+http-server web -p 8000
+```
+
+### Các tính năng nổi bật trên Web Client:
+- **Hiệu chuẩn thông minh (Smart Calibration)**: Nhấp nút **"Bắt đầu hiệu chuẩn"** để cân chỉnh. Hệ thống sẽ hướng dẫn bạn mở mắt trong 3 giây và nhắm mắt trong 3 giây tiếp theo để tự tính toán ra ngưỡng EAR tối ưu nhất dành riêng cho bạn.
+- **Hệ thống cảnh báo âm thanh kép**:
+  - **Giọng nói tiếng Việt**: Phát âm thanh cảnh báo bằng giọng nói tiếng Việt nhờ API `SpeechSynthesis` tích hợp của hệ điều hành.
+  - **Tiếng còi Beep**: Sử dụng `Web Audio API` để tự động tạo và phát ra các âm báo động tần số cao.
+- **Biểu đồ thời gian thực (Real-time Chart)**: Sử dụng đồ họa Canvas hiệu năng cao vẽ biểu đồ sóng thể hiện sự thay đổi liên tục của chỉ số EAR.
+- **Tự động lưu cấu hình**: Mọi thay đổi về ngưỡng nhạy và số khung hình kích hoạt sẽ được lưu tự động trong `localStorage` của trình duyệt.
+
+---
+
+## Các Phím Điều Khiển Trực Tiếp (Bản Desktop):
 * **Nhấn phím `Q` hoặc `q`**: Đóng ứng dụng một cách an toàn, giải phóng tài nguyên camera, dọn dẹp các luồng phát âm thanh ngầm và thoát chương trình.
 
 ---

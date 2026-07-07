@@ -1,3 +1,4 @@
+# pyrefly: ignore [missing-import]
 import cv2
 import os
 import urllib.request
@@ -5,8 +6,11 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Optional, List, Tuple
 import numpy as np
+# pyrefly: ignore [missing-import]
 import mediapipe as mp
+# pyrefly: ignore [missing-import]
 from mediapipe.tasks import python as mp_tasks
+# pyrefly: ignore [missing-import]
 from mediapipe.tasks.python import vision
 
 logger = logging.getLogger(__name__)
